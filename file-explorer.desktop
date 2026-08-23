@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=File Explorer
+Exec=/home/mogged/file-explorer/dist/linux-unpacked/kde-file-explorer --no-sandbox %U
+Icon=/home/mogged/file-explorer/file-manager.svg
+Terminal=false
+Type=Application
+Categories=Utility;
+Comment=Modern file explorer for Linux KDE inspired by Windows 11 25H2

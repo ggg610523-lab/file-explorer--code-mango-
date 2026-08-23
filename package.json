@@ -1,0 +1,50 @@
+{
+  "name": "kde-file-explorer",
+  "version": "1.0.0",
+  "description": "Modern file explorer for Linux KDE inspired by Windows 11 25H2",
+  "main": "dist/main/index.js",
+  "scripts": {
+    "build": "webpack --config webpack.config.js",
+    "start": "npm run build && electron dist/main/index.js",
+    "dev": "webpack --config webpack.config.js --watch & sleep 2 && electron dist/main/index.js",
+    "pack": "npm run build && electron-builder --linux",
+    "dist": "npm run build && electron-builder --linux deb AppImage"
+  },
+  "build": {
+    "appId": "com.kde.fileexplorer",
+    "productName": "File Explorer",
+    "directories": {
+      "buildResources": "build"
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Utility",
+      "icon": "build/icons"
+    },
+    "files": [
+      "dist/**/*"
+    ]
+  },
+  "dependencies": {
+    "electron-store": "^8.1.0",
+    "jszip": "^3.10.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "css-loader": "^6.8.0",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.6.0",
+    "html-webpack-plugin": "^5.5.0",
+    "mini-css-extract-plugin": "^2.7.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "style-loader": "^3.3.0",
+    "ts-loader": "^9.5.0",
+    "typescript": "^5.3.0",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.0"
+  }
+}
