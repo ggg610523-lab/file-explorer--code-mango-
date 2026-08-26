@@ -1,8 +1,6 @@
 @font-face {
   font-family: 'MuternVF';
-  src: url('./MuternVF.woff2') format('woff2'),
-       url('./MuternVF.woff') format('woff'),
-       url('./MuternVF.ttf') format('truetype');
+  src: url('./MuternVF.woff2') format('woff2');
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -204,33 +202,64 @@ input, button, select, textarea {
    Animations
    ══════════════════════════════════════════════════════════════════════════════ */
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes slideInLeft { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
-@keyframes scaleIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
-@keyframes contextMenuIn { from { opacity: 0; transform: scale(0.96) translateY(-4px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes slideUp { from { opacity: 0; transform: translate3d(0, 10px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+@keyframes slideInLeft { from { opacity: 0; transform: translate3d(-10px, 0, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+@keyframes scaleIn { from { opacity: 0; transform: scale3d(0.97, 0.97, 1); } to { opacity: 1; transform: scale3d(1, 1, 1); } }
+@keyframes contextMenuIn { from { opacity: 0; transform: scale3d(0.96, 0.96, 1) translate3d(0, -4px, 0); } to { opacity: 1; transform: scale3d(1, 1, 1) translate3d(0, 0, 0); } }
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-@keyframes popIn { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes popIn { 0% { transform: scale3d(0.9, 0.9, 1); opacity: 0; } 100% { transform: scale3d(1, 1, 1); opacity: 1; } }
 @keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
-@keyframes fadeScaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-@keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(10px) scale(0.95); } to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); } }
+@keyframes fadeScaleIn { from { opacity: 0; transform: scale3d(0.95, 0.95, 1); } to { opacity: 1; transform: scale3d(1, 1, 1); } }
+@keyframes toastIn { from { opacity: 0; transform: translate3d(-50%, 10px, 0) scale3d(0.95, 0.95, 1); } to { opacity: 1; transform: translate3d(-50%, 0, 0) scale3d(1, 1, 1); } }
 
-.anim-fade-in { animation: fadeIn 0.25s var(--ease-out) both; }
-.anim-slide-up { animation: slideUp 0.35s var(--ease-spring) both; }
-.anim-slide-left { animation: slideInLeft 0.35s var(--ease-spring) both; }
-.anim-scale-in { animation: scaleIn 0.25s var(--ease-spring) both; }
-.anim-pop-in { animation: popIn 0.25s var(--ease-spring) both; }
-.anim-fade-scale { animation: fadeScaleIn 0.4s var(--ease-spring) both; }
+/* ── Motion tokens (iOS-like) ─────────────────────────────────────────────
+   One entrance duration + one curve for every view/item entrance, one quick
+   duration for hover/press feedback. Keeps the whole app feeling coherent. */
+:root {
+  --motion-quick: 0.16s;      /* hover / press feedback */
+  --motion-entrance: 0.3s;    /* items & views entering */
+  --motion-view: 0.38s;       /* large sheets & panels   */
+  --ease-ios: cubic-bezier(0.32, 0.72, 0, 1);
+}
 
-.stagger-children > * { opacity: 0; animation: slideUp 0.35s var(--ease-spring) both; }
+.anim-fade-in { animation: fadeIn var(--motion-entrance) var(--ease-ios) both; }
+.anim-slide-up { animation: slideUp var(--motion-entrance) var(--ease-ios) both; }
+.anim-slide-left { animation: slideInLeft var(--motion-entrance) var(--ease-ios) both; }
+.anim-scale-in { animation: scaleIn var(--motion-entrance) var(--ease-ios) both; }
+.anim-pop-in { animation: popIn var(--motion-entrance) var(--ease-ios) both; }
+.anim-fade-scale { animation: fadeScaleIn var(--motion-view) var(--ease-ios) both; }
+
+/* Promote entrance-animated elements to their own compositor layer so the
+   main thread stays free while they animate; will-change is scoped to the
+   animation classes only (never set globally). */
+.anim-fade-in, .anim-slide-up, .anim-slide-left, .anim-scale-in,
+.anim-pop-in, .anim-fade-scale {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+.stagger-children > * { opacity: 0; animation: slideUp var(--motion-entrance) var(--ease-ios) both; will-change: transform, opacity; }
 .stagger-children > *:nth-child(1) { animation-delay: 0ms; }
-.stagger-children > *:nth-child(2) { animation-delay: 35ms; }
-.stagger-children > *:nth-child(3) { animation-delay: 70ms; }
-.stagger-children > *:nth-child(4) { animation-delay: 105ms; }
-.stagger-children > *:nth-child(5) { animation-delay: 140ms; }
-.stagger-children > *:nth-child(6) { animation-delay: 175ms; }
-.stagger-children > *:nth-child(7) { animation-delay: 210ms; }
-.stagger-children > *:nth-child(8) { animation-delay: 245ms; }
-.stagger-children > *:nth-child(n+9) { animation-delay: 280ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 16ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 32ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 48ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 64ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 80ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 96ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 112ms; }
+.stagger-children > *:nth-child(n+9) { animation-delay: 128ms; }
+
+/* Once the entrance wave has played, drop the compositor hint so memory
+   doesn't stay allocated for every list item. */
+.stagger-children.settled > * { will-change: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 
 /* ══════════════════════════════════════════════════════════════════════════════
    App Shell
@@ -405,7 +434,7 @@ input, button, select, textarea {
   cursor: pointer;
   color: var(--text-secondary);
   font-size: 13px;
-  transition: background 0.18s var(--ease-out), border-color 0.18s var(--ease-out), color 0.18s var(--ease-out), transform 0.18s var(--ease-spring), box-shadow 0.18s var(--ease-out);
+  transition: background var(--motion-quick) var(--ease-out), border-color var(--motion-quick) var(--ease-out), color var(--motion-quick) var(--ease-out), transform var(--motion-quick) var(--ease-spring), box-shadow var(--motion-quick) var(--ease-out);
   clip-path: inset(0);
 }
 .nav-btn:hover:not(:disabled) {
@@ -455,7 +484,7 @@ input, button, select, textarea {
   min-width: 0;
   font-size: 10px;
   flex: 0 1 auto;
-  transition: background 0.18s var(--ease-out), border-color 0.18s var(--ease-out), color 0.18s var(--ease-out), transform 0.18s var(--ease-spring);
+  transition: background var(--motion-quick) var(--ease-out), border-color var(--motion-quick) var(--ease-out), color var(--motion-quick) var(--ease-out), transform var(--motion-quick) var(--ease-spring);
 }
 .tool-btn:hover:not(:disabled) {
   background: var(--accent-light);
@@ -465,7 +494,7 @@ input, button, select, textarea {
 .tool-btn:active:not(:disabled) { transform: scale(0.94); }
 .tool-btn:disabled { color: var(--text-disabled); cursor: default; }
 .tool-btn:disabled:hover { background: transparent; border-color: transparent; }
-.tool-btn .icon { font-size: 15px; transition: transform 0.18s var(--ease-spring); }
+.tool-btn .icon { font-size: 15px; transition: transform var(--motion-quick) var(--ease-spring); }
 .tool-btn:hover:not(:disabled) .icon { transform: scale(1.1); color: var(--accent); }
 
 /* ── Separator ────────────────────────────────────────────────────────────── */
@@ -495,7 +524,7 @@ input, button, select, textarea {
   font-size: 11px;
   color: var(--text-secondary);
   font-weight: 500;
-  transition: background 0.15s var(--ease-out), color 0.15s var(--ease-out), box-shadow 0.15s var(--ease-out);
+  transition: background var(--motion-quick) var(--ease-out), color var(--motion-quick) var(--ease-out), box-shadow var(--motion-quick) var(--ease-out);
   white-space: nowrap;
 }
 .pill-group button:hover:not(.pill-active) {
@@ -576,7 +605,7 @@ input, button, select, textarea {
   cursor: pointer;
   font-size: 12.5px;
   color: var(--text-primary);
-  transition: background 0.15s var(--ease-out), color 0.15s var(--ease-out), padding 0.15s var(--ease-out), transform 0.15s var(--ease-spring);
+  transition: background var(--motion-quick) var(--ease-out), color var(--motion-quick) var(--ease-out), padding var(--motion-quick) var(--ease-out), transform var(--motion-quick) var(--ease-spring);
   text-align: left;
   position: relative;
   contain: layout style;
@@ -615,7 +644,7 @@ input, button, select, textarea {
   border-radius: 2px;
   transform-origin: left center;
   transform: scaleX(var(--usage-pct, 0));
-  transition: transform 0.6s var(--ease-out);
+  transition: transform 0.5s var(--ease-ios);
   will-change: transform;
 }
 
@@ -631,7 +660,7 @@ input, button, select, textarea {
   border-radius: var(--radius-md);
   gap: 7px;
   border: 1.5px solid transparent;
-  transition: transform 0.2s var(--ease-spring);
+  transition: transform var(--motion-quick) var(--ease-spring);
   clip-path: inset(0);
   touch-action: none;
   isolation: isolate;
@@ -646,7 +675,7 @@ input, button, select, textarea {
   border-radius: inherit;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.2s var(--ease-out);
+  transition: opacity var(--motion-quick) var(--ease-out);
   z-index: -1;
 }
 .file-item-grid:hover {
@@ -750,7 +779,7 @@ input, button, select, textarea {
   box-shadow: var(--shadow-context);
   min-width: 220px;
   padding: 6px;
-  animation: contextMenuIn 0.14s var(--ease-out) both;
+  animation: contextMenuIn 0.18s var(--ease-ios) both;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   will-change: opacity, transform;
@@ -768,7 +797,7 @@ input, button, select, textarea {
   color: var(--text-primary);
   font-size: 12.5px;
   text-align: left;
-  transition: background 0.12s var(--ease-out), color 0.12s var(--ease-out);
+  transition: background var(--motion-quick) var(--ease-out), color var(--motion-quick) var(--ease-out);
 }
 .context-menu-item:hover {
   background: var(--accent-light);
@@ -896,7 +925,7 @@ input, button, select, textarea {
   cursor: pointer;
   font-size: 12.5px;
   white-space: nowrap;
-  transition: background 0.12s var(--ease-out), color 0.12s var(--ease-out);
+  transition: background var(--motion-quick) var(--ease-out), color var(--motion-quick) var(--ease-out);
 }
 .breadcrumb-part:hover {
   background: var(--accent-light);
@@ -921,11 +950,10 @@ input, button, select, textarea {
   min-width: 72px;
   max-width: 180px;
   height: 30px;
-  transition: background 0.18s var(--ease-out), border-color 0.18s var(--ease-out), height 0.18s var(--ease-out);
+  transition: background var(--motion-quick) var(--ease-out), border-color var(--motion-quick) var(--ease-out), height var(--motion-quick) var(--ease-out);
   position: relative;
   -webkit-app-region: no-drag;
   app-region: no-drag;
-  will-change: height;
 }
 .tab:hover { background: var(--accent-surface); }
 .tab.active {
@@ -949,7 +977,7 @@ input, button, select, textarea {
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--text-secondary);
-  transition: color 0.15s;
+  transition: color var(--motion-quick) var(--ease-out);
 }
 .tab:hover .tab-label { color: var(--text-primary); }
 .tab.active .tab-label {
@@ -966,7 +994,7 @@ input, button, select, textarea {
   color: var(--text-tertiary);
   flex-shrink: 0;
   opacity: 0;
-  transition: opacity 0.12s, background 0.12s, color 0.12s;
+  transition: opacity var(--motion-quick) var(--ease-out), background var(--motion-quick) var(--ease-out), color var(--motion-quick) var(--ease-out);
 }
 .tab:hover .tab-close, .tab.active .tab-close { opacity: 1; }
 .tab-close:hover {
@@ -982,7 +1010,7 @@ input, button, select, textarea {
   font-size: 16px;
   color: var(--text-tertiary);
   margin-bottom: 1px;
-  transition: background 0.18s var(--ease-out), color 0.18s var(--ease-out), transform 0.18s var(--ease-spring);
+  transition: background var(--motion-quick) var(--ease-out), color var(--motion-quick) var(--ease-out), transform var(--motion-quick) var(--ease-spring);
 }
 .tab-add:hover {
   background: var(--accent-light);
@@ -1003,7 +1031,7 @@ input, button, select, textarea {
   border: none;
   cursor: pointer;
   color: var(--text-secondary);
-  transition: background 0.08s ease;
+  transition: background var(--motion-quick) var(--ease-out);
 }
 .win-btn svg { display: block; }
 .win-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
@@ -1030,7 +1058,7 @@ input, button, select, textarea {
   font-size: 16px;
   -webkit-app-region: no-drag;
   app-region: no-drag;
-  transition: background 0.15s var(--ease-out), color 0.15s var(--ease-out);
+  transition: background var(--motion-quick) var(--ease-out), color var(--motion-quick) var(--ease-out);
 }
 .hamburger-btn:hover {
   background: var(--accent-light);
@@ -1044,7 +1072,7 @@ input, button, select, textarea {
   inset: 0;
   background: rgba(0,0,0,0.3);
   z-index: 999;
-  animation: fadeIn 0.15s var(--ease-out);
+  animation: fadeIn var(--motion-quick) var(--ease-ios) both;
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
   will-change: opacity;
@@ -1178,7 +1206,7 @@ button:active:not(:disabled) {
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   display: flex; align-items: center; justify-content: center;
-  animation: fadeIn 0.15s var(--ease-out);
+  animation: fadeIn var(--motion-quick) var(--ease-ios) both;
   will-change: opacity;
 }
 .properties-dialog {
@@ -1195,7 +1223,7 @@ button:active:not(:disabled) {
   padding: 6px 20px; border-radius: var(--radius-sm);
   background: var(--accent); color: #fff; border: none;
   font-size: 12.5px; font-weight: 500; cursor: pointer;
-  transition: filter 0.15s var(--ease-out), transform 0.15s var(--ease-spring);
+  transition: filter 0.15s var(--ease-out), transform var(--motion-quick) var(--ease-spring);
 }
 .properties-close-btn:hover { filter: brightness(1.08); }
 
@@ -1223,7 +1251,7 @@ button:active:not(:disabled) {
   inset: 0;
   z-index: 100;
   background: rgba(0,0,0,0.15);
-  animation: fadeIn 0.15s var(--ease-out);
+  animation: fadeIn var(--motion-quick) var(--ease-ios) both;
   will-change: opacity;
 }
 [data-theme="dark"] .preview-overlay {
@@ -1280,7 +1308,7 @@ button:active:not(:disabled) {
   border-radius: var(--radius-sm);
   cursor: pointer;
   color: var(--text-tertiary);
-  transition: background 0.12s var(--ease-out), color 0.12s var(--ease-out);
+  transition: background var(--motion-quick) var(--ease-out), color var(--motion-quick) var(--ease-out);
 }
 
 .preview-close-btn:hover {
@@ -1372,7 +1400,7 @@ button:active:not(:disabled) {
   cursor: pointer;
   font-size: 11.5px;
   color: var(--text-secondary);
-  transition: background 0.12s var(--ease-out), border-color 0.12s var(--ease-out), color 0.12s var(--ease-out);
+  transition: background var(--motion-quick) var(--ease-out), border-color var(--motion-quick) var(--ease-out), color var(--motion-quick) var(--ease-out);
   white-space: nowrap;
 }
 

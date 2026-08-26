@@ -74,9 +74,9 @@ function remember(path: string, url: string): void {
 }
 
 async function runJob(job: Job): Promise<string> {
-  const res = await fetch(`thumbnails://${job.path}`);
-  if (!res.ok) throw new Error('thumbnails fetch failed');
-  const blob = await res.blob();
+  const res = await window.api.fetchThumbnailBlob(job.path);
+  if (!res.ok) throw new Error('thumbnail read failed');
+  const blob = res.blob;
   return new Promise<string>((resolve, reject) => {
     const id = nextId++;
     pending.set(id, { resolve, reject });
@@ -87,7 +87,7 @@ async function runJob(job: Job): Promise<string> {
 function pruneHigh(): void {
   while (highQueue.length > HIGH_MAX) {
     const stale = highQueue.shift()!;
-    stale.resolve(`thumbnails://${stale.path}`);
+    stale.reject(new Error('thumbnail pruned'));
   }
 }
 

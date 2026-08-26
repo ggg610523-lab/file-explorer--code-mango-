@@ -33,7 +33,7 @@ declare global {
       restoreItem: (trashPath: string) => Promise<{ success: boolean; path?: string; error?: string }>;
       emptyTrash: () => Promise<{ success: boolean; error?: string }>;
       onTrashChanged: (callback: () => void) => () => void;
-      resolveIcon: (filePath: string, isDir: boolean) => Promise<string | null>;
+      resolveIcon: (iconName: string) => Promise<string | null>;
       resolveIcons: (items: { path: string; isDir: boolean; name: string }[]) => Promise<Record<string, string | null>>;
       getSpecialIcons: () => Promise<Record<string, string | null>>;
       onCopyProgress: (callback: (data: any) => void) => () => void;
@@ -45,6 +45,8 @@ declare global {
       listArchive: (archivePath: string) => Promise<{ success: boolean; entries: { name: string; size: number; isDir: boolean; compressedSize?: number }[]; error?: string }>;
       extractArchive: (archivePath: string, destDir: string) => Promise<{ success: boolean; error?: string; created?: string[] }>;
       createArchive: (paths: string[], destPath: string) => Promise<{ success: boolean; error?: string }>;
+      readThumbnail: (filePath: string) => Promise<{ ok: boolean; data?: string; error?: string }>;
+      fetchThumbnailBlob: (filePath: string) => Promise<{ ok: boolean; blob: Blob }>;
     };
   }
 }

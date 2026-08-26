@@ -195,7 +195,7 @@ export const FileView = memo(function FileView({ files, loading, viewMode, selec
     if (animKey !== prevAnimKeyRef.current) {
       prevAnimKeyRef.current = animKey;
       setShouldAnimate(true);
-      const t = setTimeout(() => setShouldAnimate(false), 400);
+      const t = setTimeout(() => setShouldAnimate(false), 450);
       return () => clearTimeout(t);
     }
   }, [animKey]);

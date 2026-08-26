@@ -1,0 +1,6 @@
+/node_modules
+/dist
+/build
+/file-explorer.desktop
+/run.sh
+*.AppImage

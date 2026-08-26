@@ -1,5 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import './api'; // Install the Tauri-backed `window.api` bridge (must run first).
 import { App } from './App';
 
 const container = document.getElementById('root');

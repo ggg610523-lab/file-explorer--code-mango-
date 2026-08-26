@@ -1,0 +1,37 @@
+[package]
+name = "file-explorer"
+version = "1.0.0"
+description = "Modern file explorer for Linux inspired by Windows 11 25H2"
+authors = ["mango"]
+edition = "2021"
+
+# Tauri lib crate so it can be used from mobile or desktop binaries.
+[lib]
+name = "file_explorer_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+base64 = "0.22"
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true
+
+# Dev builds run near release speed: our crate compiles fast with light opts,
+# dependencies are fully optimized and stripped of debug info (the debug
+# binary was 224MB and noticeably sluggish to start).
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
+debug = false

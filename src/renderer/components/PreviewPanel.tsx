@@ -88,7 +88,20 @@ const PreviewPanel: React.FC<Props> = ({ file, onClose, onOpenWith, onDelete, on
   const isPdf = file.name.toLowerCase().endsWith('.pdf');
   const isArchive = archiveExtensions.has(file.name.split('.').pop()?.toLowerCase() || '');
 
-  const localUrl = `thumbnails://${file.path}`;
+  const localUrl = ``;
+
+  const [mediaUrl, setMediaUrl] = useState<string>('');
+  useEffect(() => {
+    setMediaUrl('');
+    if (file.isDirectory) return;
+    let cancelled = false;
+    window.api.fetchThumbnailBlob(file.path).then(({ ok, blob }) => {
+      if (!ok || cancelled) return;
+      const url = URL.createObjectURL(blob);
+      setMediaUrl(url);
+    });
+    return () => { cancelled = true; };
+  }, [file.path, file.isDirectory]);
 
   const handleBodyDoubleClick = useCallback(() => {
     if (file.isDirectory) onOpen();
@@ -144,11 +157,11 @@ const PreviewPanel: React.FC<Props> = ({ file, onClose, onOpenWith, onDelete, on
             </div>
           ) : isImage ? (
             <div className="preview-media-container">
-              <img src={localUrl} alt={file.name} className="preview-image" />
+              <img src={mediaUrl} alt={file.name} className="preview-image" />
             </div>
           ) : isVideo ? (
             <div className="preview-media-container">
-              <video src={localUrl} controls className="preview-video" />
+              <video src={mediaUrl} controls className="preview-video" />
             </div>
           ) : isAudio ? (
             <div className="preview-media-container">
@@ -156,7 +169,7 @@ const PreviewPanel: React.FC<Props> = ({ file, onClose, onOpenWith, onDelete, on
                 <svg width="64" height="64" viewBox="0 0 24 24" fill="#7c4dff">
                   <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
                 </svg>
-                <audio src={localUrl} controls className="preview-audio" />
+                <audio src={mediaUrl} controls className="preview-audio" />
               </div>
             </div>
           ) : isPdf ? (

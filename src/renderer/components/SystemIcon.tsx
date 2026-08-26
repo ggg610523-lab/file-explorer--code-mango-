@@ -96,7 +96,12 @@ export function SystemIcon({ path: filePath, isDir, name, size = 20, iconPath, c
       loadThumbnail(filePath).then(url => {
         if (!cancelled) setSrc(url);
       }).catch(() => {
-        if (!cancelled) setSrc(`thumbnails://${filePath}`);
+        if (!cancelled) {
+          requestIcon(filePath, isDir, name || '', icon => {
+            if (icon) setSrc(icon);
+            else setSrc(null);
+          });
+        }
       });
       return () => { cancelled = true; };
     }

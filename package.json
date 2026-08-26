@@ -4,11 +4,12 @@
   "description": "Modern file explorer for Linux KDE inspired by Windows 11 25H2",
   "main": "dist/main/index.js",
   "scripts": {
-    "build": "webpack --config webpack.config.js",
+    "build": "webpack --config webpack.config.js && cp -r src/renderer/reversal-icons dist/renderer/reversal-icons",
     "start": "npm run build && electron dist/main/index.js",
     "dev": "webpack --config webpack.config.js --watch & sleep 2 && electron dist/main/index.js",
-    "pack": "npm run build && electron-builder --linux",
-    "dist": "npm run build && electron-builder --linux deb AppImage"
+    "tauri": "tauri",
+    "tauri:dev": "node build-tauri-renderer.js && cp -r src/renderer/reversal-icons dist/renderer/reversal-icons && tauri dev",
+    "tauri:build": "NODE_ENV=production node build-tauri-renderer.js && cp -r src/renderer/reversal-icons dist/renderer/reversal-icons && tauri build"
   },
   "build": {
     "appId": "com.kde.fileexplorer",
@@ -28,10 +29,12 @@
     ]
   },
   "dependencies": {
+    "@tauri-apps/api": "^2.4.0",
     "electron-store": "^8.1.0",
     "jszip": "^3.10.1"
   },
   "devDependencies": {
+    "@tauri-apps/cli": "^2.4.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "css-loader": "^6.8.0",
@@ -42,6 +45,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "style-loader": "^3.3.0",
+    "terser-webpack-plugin": "^5.6.1",
     "ts-loader": "^9.5.0",
     "typescript": "^5.3.0",
     "webpack": "^5.89.0",
