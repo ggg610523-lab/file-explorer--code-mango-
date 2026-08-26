@@ -63,3 +63,4 @@ the Rust backend in `src-tauri/src/lib.rs`, exposed as Tauri commands.
 - Window controls and theming reimplemented as Tauri commands
   (`window_minimize/maximize/close`, `get_theme`, `set_theme`).
 # tauri-file
+# tauri-file
