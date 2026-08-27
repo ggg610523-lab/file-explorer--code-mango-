@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { ThemeMode } from '../types';
 
 export function useTheme() {
-  const [theme, setThemeState] = useState<'light' | 'dark'>('light');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const [theme, setThemeState] = useState<'light' | 'dark'>(prefersDark ? 'dark' : 'light');
   const [themeMode, setThemeMode] = useState<ThemeMode>('system');
 
   useEffect(() => {
