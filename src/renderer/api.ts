@@ -15,6 +15,7 @@ const api: typeof window.api = {
   windowMinimize: () => void invoke('window_minimize'),
   windowMaximize: () => void invoke('window_maximize'),
   windowClose: () => void invoke('window_close'),
+  windowShow: () => void invoke('window_show'),
 
   // Theme
   getTheme: () => invoke('get_theme'),
