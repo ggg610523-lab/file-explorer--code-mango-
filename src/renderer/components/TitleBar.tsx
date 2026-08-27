@@ -6,7 +6,7 @@ interface Props {
 
 export function TitleBar({ onToggleSidebar }: Props) {
   return (
-    <div className="titlebar" style={{
+    <div className="titlebar" data-tauri-drag-region style={{
       display: 'flex', alignItems: 'center', height: 'var(--titlebar-h)',
       padding: '0 8px', gap: 6,
       flexShrink: 0,

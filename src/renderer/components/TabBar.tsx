@@ -14,7 +14,7 @@ interface Props {
 
 export function TabBar({ tabs, activeTabId, onTabClick, onCloseTab, onNewTab, themeMode, onToggleTheme, onToggleSidebar }: Props) {
   return (
-    <div className="titlebar" style={{
+    <div className="titlebar" data-tauri-drag-region style={{
       display: 'flex', alignItems: 'flex-end', height: 'var(--tabbar-h)',
       background: 'var(--bg-primary)', paddingLeft: 0, paddingRight: 0, gap: 0,
       paddingBottom: 0,
@@ -26,10 +26,11 @@ export function TabBar({ tabs, activeTabId, onTabClick, onCloseTab, onNewTab, th
           <path d="M3 6h18M3 12h18M3 18h18" />
         </svg>
       </button>
-      <div style={{ display: 'flex', alignItems: 'flex-end', flex: 1, gap: 2, overflow: 'hidden', paddingLeft: 4 }}>
+      <div data-tauri-drag-region style={{ display: 'flex', alignItems: 'flex-end', flex: 1, gap: 2, overflow: 'hidden', paddingLeft: 4 }}>
         {tabs.map((tab) => (
           <div
             key={tab.id}
+            data-tauri-drag-region
             onClick={() => onTabClick(tab.id)}
             className={`tab ${tab.id === activeTabId ? 'active' : ''}`}
           >
