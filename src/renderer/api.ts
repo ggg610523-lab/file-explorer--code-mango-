@@ -1,10 +1,5 @@
-// Tauri-backed implementation of the `window.api` bridge.
-//
-// The original app was built on Electron: the renderer talks to a main process
-// through `window.api.*` exposed by a preload script. Tauri replaces that main
-// process with Rust commands, so we re-implement the same surface on top of
-// Tauri's IPC (`invoke` + `listen`). The React components are otherwise
-// unchanged.
+// Tauri IPC bridge implementing the `window.api` interface.
+// Uses `invoke` for commands and `listen` for events.
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 
@@ -61,7 +56,7 @@ const api: typeof window.api = {
   resolveIcons: (items) => invoke('resolve_icons', { items }),
   getSpecialIcons: () => invoke('get_special_icons'),
 
-  // Thumbnails (replaces the Electron `thumbnails://` protocol)
+  // Thumbnails
   readThumbnail: (filePath) => invoke('read_thumbnail', { filePath }),
 
   // Events
