@@ -7,7 +7,6 @@ interface Props {
   currentPath: string;
   activeView: string;
   onShowApplications: () => void;
-  trashInfo: { path: string; count: number } | null;
 }
 
 // Uniform icon slot: every sidebar row renders its icon inside the same
@@ -18,19 +17,20 @@ const SLOT: React.CSSProperties = {
   flexShrink: 0,
 };
 
-export function NavigationPane({ onNavigate, currentPath, activeView, onShowApplications, trashInfo }: Props) {
+export function NavigationPane({ onNavigate, currentPath, activeView, onShowApplications }: Props) {
   const [pinnedFolders, setPinnedFolders] = useState<{ name: string; path: string; icon: string }[]>([]);
   const [drives, setDrives] = useState<DriveInfo[]>([]);
   const [specialIcons, setSpecialIcons] = useState<Record<string, string | null>>({});
   const [appsIcon, setAppsIcon] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<Set<string>>(new Set(['pinned', 'drives']));
-  const [trash, setTrash] = useState<{ path: string; count: number } | null>(trashInfo);
+  const [trash, setTrash] = useState<{ path: string; count: number } | null>(null);
 
   useEffect(() => {
     window.api.getPinnedFolders().then(setPinnedFolders);
     window.api.getDrives().then(setDrives);
     window.api.getSpecialIcons().then(setSpecialIcons);
     window.api.resolveIcon('applications-other').then(setAppsIcon);
+    window.api.getTrashInfo().then(setTrash);
     const unsubDrives = window.api.onDrivesChanged(() => {
       window.api.getDrives().then(setDrives);
     });

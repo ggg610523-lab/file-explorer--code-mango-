@@ -4,10 +4,7 @@
   "version": "1.0.0",
   "identifier": "com.kde.fileexplorer",
   "build": {
-    "beforeDevCommand": "pnpm dev",
-    "beforeBuildCommand": "pnpm build",
-    "devUrl": "http://localhost:1421",
-    "frontendDist": "../dist"
+    "frontendDist": "../dist/renderer"
   },
   "app": {
     "windows": [
@@ -22,8 +19,7 @@
         "transparent": false,
         "backgroundColor": "#fafbfd",
         "resizable": true,
-        "center": true,
-        "visible": false
+        "center": true
       }
     ],
     "security": {
@@ -34,6 +30,7 @@
     "active": true,
     "targets": ["deb", "appimage"],
     "category": "Utility",
+    "resources": ["../dist/renderer/reversal-icons/**/*"],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
