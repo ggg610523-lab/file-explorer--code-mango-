@@ -147,21 +147,9 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    Promise.all([
-      window.api.getInitialPath(),
-      window.api.getHomeDir(),
-      window.api.getTrashInfo(),
-    ]).then(([initialPath, homeDir, trashInfo]) => {
-      fs.createTab(initialPath || homeDir);
-      setTrashPath(trashInfo.path || null);
-    });
+    window.api.getInitialPath().then(p => fs.createTab(p || undefined));
+    window.api.getTrashInfo().then(info => setTrashPath(info.path || null));
     new FpsDebug();
-    // Show window after React mounts — no white flash
-    const timeout = setTimeout(() => window.api.windowShow(), 50);
-
-    return () => {
-      clearTimeout(timeout)
-    }
   }, []);
 
   const activeTab = fs.getActiveTab();
@@ -418,8 +406,7 @@ export function App() {
         <div className={`sidebar-wrapper ${sidebarOpen ? 'open' : ''}`}>
           <NavigationPane onNavigate={(p) => { if (p === 'home') { setShowHome(true); setShowApplications(false); } else { nav(p); setShowApplications(false); } }}
             currentPath={activeTab?.path || ''} activeView={showApplications ? 'applications' : showHome ? 'home' : 'files'}
-            onShowApplications={() => { setShowApplications(true); setShowHome(false); }}
-            trashInfo={trashPath ? { path: trashPath, count: 0 } : null} />
+            onShowApplications={() => { setShowApplications(true); setShowHome(false); }} />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
           <AddressBar path={activeTab?.path || ''} onNavigate={nav}

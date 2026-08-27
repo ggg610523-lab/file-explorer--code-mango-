@@ -270,15 +270,7 @@ fn get_folder_icon(name: &str) -> &'static str {
 #[tauri::command]
 fn resolve_icon(app: AppHandle, icon_name: String) -> Option<String> {
     let state = app.state::<AppState>();
-    // Try read first (concurrent, no blocking)
-    {
-        let guard = state.icon_index.read().unwrap();
-        if let Some(idx) = guard.as_ref() {
-            return idx.get(&icon_name).cloned();
-        }
-    }
-    // Not built yet, upgrade to write
-    let mut guard = state.icon_index.write().unwrap();
+    let mut guard = state.icon_index.lock().unwrap();
     if guard.is_none() {
         *guard = Some(build_icon_index(&app));
     }
@@ -323,14 +315,6 @@ fn window_maximize(app: AppHandle) {
 fn window_close(app: AppHandle) {
     if let Some(w) = app.get_webview_window("main") {
         let _ = w.close();
-    }
-}
-
-#[tauri::command]
-fn window_show(app: AppHandle) {
-    if let Some(w) = app.get_webview_window("main") {
-        let _ = w.show();
-        let _ = w.set_focus();
     }
 }
 
@@ -400,7 +384,7 @@ fn percent_decode(s: &str) -> String {
 }
 
 #[tauri::command]
-fn read_directory(_ctx: tauri::AppHandle, dir_path: String) -> Value {
+fn read_directory(ctx: tauri::AppHandle, dir_path: String) -> Value {
     let read = std::fs::read_dir(&dir_path);
     match read {
         Ok(entries) => {
@@ -413,32 +397,31 @@ fn read_directory(_ctx: tauri::AppHandle, dir_path: String) -> Value {
                 let name = entry.file_name().to_string_lossy().to_string();
                 let full = Path::new(&dir_path).join(&name);
                 let full_str = full.to_string_lossy().to_string();
-                
-                // Single metadata call instead of file_type() + metadata()
-                let meta = match std::fs::metadata(&full) {
-                    Ok(m) => m,
+                let ft = match entry.file_type() {
+                    Ok(t) => t,
                     Err(_) => continue,
                 };
-                
-                let is_dir = meta.is_dir();
-                let is_file = meta.is_file();
-                let is_symlink = meta.file_type().is_symlink();
-                
-                // Icon resolved lazily by frontend via SystemIcon batching
-                let fe = FileEntry {
-                    name: name.clone(),
-                    path: full_str.clone(),
-                    is_directory: is_dir,
-                    is_file,
-                    is_symlink,
-                    size: meta.len(),
-                    modified: meta.modified().map(|t| timestamp_iso(t)).unwrap_or_default(),
-                    created: meta.created().map(|t| timestamp_iso(t)).unwrap_or_default(),
-                    permissions: format!("{:o}", meta.permissions().mode() & 0o777),
-                    parent_dir: None,
-                    icon: None,
+                let is_dir = ft.is_dir();
+                let is_file = ft.is_file();
+                let is_symlink = ft.is_symlink();
+                let mut fe = stat_to_entry(&dir_path, &name, is_dir, is_file, is_symlink);
+                if let Ok(meta) = std::fs::metadata(&full) {
+                    fe.size = meta.len();
+                    fe.modified = meta
+                        .modified()
+                        .map(|t| timestamp_iso(t))
+                        .unwrap_or_default();
+                    fe.created = meta
+                        .created()
+                        .map(|t| timestamp_iso(t))
+                        .unwrap_or_default();
+                    fe.permissions = format!("{:o}", meta.permissions().mode() & 0o777);
+                }
+                fe.icon = if is_dir {
+                    resolve_icon(ctx.clone(), get_folder_icon(&name).to_string())
+                } else {
+                    resolve_icon(ctx.clone(), get_icon_for_file(&full_str).to_string())
                 };
-                
                 files.push(fe);
             }
             json!({ "success": true, "files": files })
@@ -1430,13 +1413,13 @@ fn create_archive(paths: Vec<String>, dest_path: String) -> Value {
     }
 }
 // ── Drag state (cross-window) ─────────────────────────────────────────────
-use std::sync::{Mutex, RwLock};
+use std::sync::Mutex;
 
 struct AppState {
     drag_path: Mutex<Vec<String>>,
     // One-time scan of the bundled icon theme: icon name -> origin-relative
     // URL. Avoids dozens of `exists()` syscalls per icon on the hot path.
-    icon_index: RwLock<Option<std::collections::HashMap<String, String>>>,
+    icon_index: Mutex<Option<std::collections::HashMap<String, String>>>,
 }
 
 // Scan the Reversal theme once and map every icon name to its best-ranked URL.
@@ -1499,7 +1482,7 @@ pub fn run() {
     tauri::Builder::default()
         .manage(AppState {
             drag_path: Mutex::new(Vec::new()),
-            icon_index: RwLock::new(None),
+            icon_index: Mutex::new(None),
         })
         .setup(|app| {
             // Warm the icon-theme index in the background so the first
@@ -1508,7 +1491,7 @@ pub fn run() {
             let icon_handle = app.handle().clone();
             std::thread::spawn(move || {
                 let state = icon_handle.state::<AppState>();
-                let mut guard = state.icon_index.write().unwrap();
+                let mut guard = state.icon_index.lock().unwrap();
                 if guard.is_none() {
                     *guard = Some(build_icon_index(&icon_handle));
                 }
@@ -1532,7 +1515,6 @@ pub fn run() {
             window_minimize,
             window_maximize,
             window_close,
-            window_show,
             get_theme,
             set_theme,
             get_home_dir,

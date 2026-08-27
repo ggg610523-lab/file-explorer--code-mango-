@@ -4,7 +4,6 @@ declare global {
       windowMinimize: () => void;
       windowMaximize: () => void;
       windowClose: () => void;
-      windowShow: () => void;
       getTheme: () => Promise<string>;
       setTheme: (theme: string) => void;
       readDirectory: (dirPath: string) => Promise<{ success: boolean; files: any[]; error?: string }>;
