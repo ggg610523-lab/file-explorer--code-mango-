@@ -1,3 +1,5 @@
+
+<img width="1920" height="1080" alt="Screenshot From 2026-07-30 23-17-30" src="https://github.com/user-attachments/assets/776c07d4-e7fe-495a-89ca-6f6bdd3f35e8" />
 # File Explorer (Windows 11-style) — Electron ⇄ Tauri
 
 A modern Linux file explorer inspired by Windows 11 (25H2), built with **React +
